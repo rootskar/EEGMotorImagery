@@ -13,14 +13,25 @@ from EEGModels import EEGNet, EEGNet_old, ShallowConvNet, DeepConvNet, DeeperCon
 from transfer_learning import run_transfer_learning
 from training_testing import run_model
 
+"""
+Required dependencies: Python >= 3.3, Tensorflow >= 1.4, Numpy >= 1.18.1, scikit-learn >= 0.22, pyEDFlib >= 0.1.15, Gumpy (https://github.com/gumpy-bci/gumpy)
+The program can be run from the CLI with the following required arguments:
+1.) The numbr of subjects to be used from the dataset
+2.) The number of epochs the training of models should be done
+3.) What type of trials should be extracted from the data; 1 => executed trials only; 2 => imagined trials only; 3 => both trials
+4.) If CPU-only mode should be used (True / False)
+
+Example: python train_test_tl.py 109 100 1 False
+"""
+
 # %%
 # Data Loading
 print("Starting job with args:")
 print(sys.argv)
-nr_of_subj = int(sys.argv[1]) # the number of subjects to be used from the dataset
-nr_of_epochs = int(sys.argv[2]) # the number of epochs the training should be done
-trial_type = int(sys.argv[3]) # what type of trials should be extracted from the data; 1 => executed trials only; 2 => imagined trials only; 3 => both trials
-use_cpu = bool(sys.argv[4]) # if CPU-only mode should be used (True / False)
+nr_of_subj = int(sys.argv[1])
+nr_of_epochs = int(sys.argv[2])
+trial_type = int(sys.argv[3])
+use_cpu = bool(sys.argv[4])
 
 # Settings for transfer learning
 trials_per_subject = 3 * 15 * 8
