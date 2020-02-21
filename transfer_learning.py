@@ -25,7 +25,8 @@ trains the model with transfer learning approach by disabling specified layers a
 
 @output - Accuracy value (float)
 """
-def train_evaluate_transfer(X_train, y_train, X_test, y_test, model, model_name, subj, disabled_layers, multi_branch=False, nr_of_epochs=100, val_split=0.1, samples=80, classes=2, n=0):
+def train_evaluate_transfer(X_train, y_train, X_test, y_test, model, model_name, subj, disabled_layers, 
+                            multi_branch=False, nr_of_epochs=100, val_split=0.1, samples=80, classes=2, n=0):
     model.load_weights('./model/' + str(model_name) + '_best.h5')
     X_train = X_train.reshape((-1, 1, 64, samples))
     X_test = X_train.reshape((-1, 1, 64, samples))
@@ -46,7 +47,8 @@ def train_evaluate_transfer(X_train, y_train, X_test, y_test, model, model_name,
 
     model.compile(loss=binary_crossentropy, optimizer=Adam(lr=0.001), metrics=['accuracy'])
     if multi_branch:
-        history = model.fit([X_train, X_train, X_train], y_train, shuffle=True, batch_size=64, epochs=nr_of_epochs, validation_split=val_split, verbose=False, callbacks=callbacks_list)
+        history = model.fit([X_train, X_train, X_train], y_train, shuffle=True, batch_size=64, 
+                            epochs=nr_of_epochs, validation_split=val_split, verbose=False, callbacks=callbacks_list)
     else:
         history = model.fit(X_train, y_train, shuffle=True, batch_size=64, epochs=nr_of_epochs, validation_split=val_split, verbose=False, callbacks=callbacks_list)
 
@@ -65,7 +67,8 @@ If the kfold argument is True, the model is kfold cross-validated and the averag
 
 @output - Model object
 """
-def run_transfer(X, y, model_name, subj, disabled_layers, nr_of_epochs=100, multi_branch=False, val_split=0.1, test_size=0.25, samples=80, classes=2, kfold=False, kfold_n=2):
+def run_transfer(X, y, model_name, subj, disabled_layers, nr_of_epochs=100, multi_branch=False, 
+                 val_split=0.1, test_size=0.25, samples=80, classes=2, kfold=False, kfold_n=2):
     model = load_model('./model/' + str(model_name) + '_best.h5')
 
     if kfold:
@@ -75,7 +78,8 @@ def run_transfer(X, y, model_name, subj, disabled_layers, nr_of_epochs=100, mult
             X_train, y_train = X[train_idx], y[train_idx]
             X_test, y_test = X[test_idx], y[test_idx]
 
-            acc = train_evaluate_transfer(X_train, y_train, X_test, y_test, model, model_name, subj, disabled_layers, multi_branch=multi_branch, nr_of_epochs=nr_of_epochs, samples=samples, classes=classes, n=len(accs))
+            acc = train_evaluate_transfer(X_train, y_train, X_test, y_test, model, model_name, subj, disabled_layers, 
+                                        multi_branch=multi_branch, nr_of_epochs=nr_of_epochs, samples=samples, classes=classes, n=len(accs))
             accs.append(acc)
             # re-initialize model weights
             K.get_session().run(global_variables_initializer())
@@ -84,7 +88,8 @@ def run_transfer(X, y, model_name, subj, disabled_layers, nr_of_epochs=100, mult
 
     else:
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
-        train_evaluate_transfer(X_train, y_train, X_test, y_test, model, model_name, subj, disabled_layers, multi_branch=multi_branch, nr_of_epochs=nr_of_epochs, samples=samples, classes=classes, n=len(accs))
+        train_evaluate_transfer(X_train, y_train, X_test, y_test, model, model_name, subj, disabled_layers, 
+                                multi_branch=multi_branch, nr_of_epochs=nr_of_epochs, samples=samples, classes=classes)
 
     return model
 
@@ -98,7 +103,8 @@ If different_test_sizes is True, then the TL is evaluated using 25%, 50% and 75%
 
 @output - None
 """
-def run_transfer_learning(model_name, model, X, y, X_tl, y_tl, subj_for_training, disabled_layers, multi_branch=False, test_size=0.5, different_test_sizes=False, kfold=False, kfold_n=10, pre_train=False):
+def run_transfer_learning(model_name, model, X, y, X_tl, y_tl, subj_for_training, disabled_layers, 
+                          multi_branch=False, test_size=0.5, different_test_sizes=False, kfold=False, kfold_n=10, pre_train=False):
     if pre_train:
         # pre-train the base model
         run_model(X, y, model, multi_branch=multi_branch, model_name = model_name, classes=2, samples=80, kfold=kfold, kfold_n=kfold_n, val_split=0.1)
