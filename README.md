@@ -1,7 +1,10 @@
 # EEGMotorImagery
 EEG motor imagery classification using transfer learning
 
-Required dependencies: Python >= 3.3, Tensorflow >= 1.4, Numpy >= 1.18.1, scikit-learn >= 0.22, pyEDFlib >= 0.1.15, Gumpy (https://github.com/gumpy-bci/gumpy)
+## Dependencies
+Python >= 3.3, Tensorflow >= 1.4, Numpy >= 1.18.1, scikit-learn >= 0.22, pyEDFlib >= 0.1.15, Gumpy (https://github.com/gumpy-bci/gumpy)
+
+## Running
 The program can be run from the CLI with the following required arguments:
 1.) The numbr of subjects to be used from the dataset
 2.) The number of epochs the training of models should be done
