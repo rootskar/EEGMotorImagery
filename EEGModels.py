@@ -1,47 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
- ARL_EEGModels - A collection of Convolutional Neural Network models for EEG
- Signal Processing and Classification, using Keras and Tensorflow
- Requirements:
-    (1) tensorflow-gpu == 1.12.0
-    (2) 'image_data_format' = 'channels_first' in keras.json config
-    (3) Data shape = (trials, kernels, channels, samples), which for the 
-        input layer, will be (trials, 1, channels, samples).
- 
- To run the EEG/MEG ERP classification sample script, you will also need
-    (4) mne >= 0.17.1
-    (5) PyRiemann >= 0.2.5
-    (6) scikit-learn >= 0.20.1
-    (7) matplotlib >= 2.2.3
-    
- To use:
-    
-    (1) Place this file in the PYTHONPATH variable in your IDE (i.e.: Spyder)
-    (2) Import the model as
-        
-        from EEGModels import EEGNet    
-        
-        model = EEGNet(nb_classes = ..., Chans = ..., Samples = ...)
-        
-    (3) Then compile and fit the model
-    
-        model.compile(loss = ..., optimizer = ..., metrics = ...)
-        fitted    = model.fit(...)
-        predicted = model.predict(...)
- Portions of this project are works of the United States Government and are not
- subject to domestic copyright protection under 17 USC Sec. 105.  Those 
- portions are released world-wide under the terms of the Creative Commons Zero 
- 1.0 (CC0) license.  
- 
- Other portions of this project are subject to domestic copyright protection 
- under 17 USC Sec. 105.  Thoqse portions are licensed under the Apache 2.0 
- license.  The complete text of the license governing this material is in 
- the file labeled LICENSE.TXT that is a part of this project's official 
- distribution. 
-"""
-
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense, Activation, Permute, Dropout
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, AveragePooling2D
@@ -115,25 +74,6 @@ def EEGNet(nb_classes, Chans = 64, Samples = 128,
 def EEGNet_SSVEP(nb_classes = 12, Chans = 8, Samples = 256, 
              dropoutRate = 0.5, kernLength = 256, F1 = 96, 
              D = 1, F2 = 96, dropoutType = 'Dropout', cpu = False):
-    """ SSVEP Variant of EEGNet, as used in [1]. 
-    Inputs:
-        
-      nb_classes      : int, number of classes to classify
-      Chans, Samples  : number of channels and time points in the EEG data
-      dropoutRate     : dropout fraction
-      kernLength      : length of temporal convolution in first layer
-      F1, F2          : number of temporal filters (F1) and number of pointwise
-                        filters (F2) to learn. 
-      D               : number of spatial filters to learn within each temporal
-                        convolution.
-      dropoutType     : Either SpatialDropout2D or Dropout, passed as a string.
-      
-      
-    [1]. Waytowich, N. et. al. (2018). Compact Convolutional Neural Networks
-    for Classification of Asynchronous Steady-State Visual Evoked Potentials.
-    Journal of Neural Engineering vol. 15(6). 
-    http://iopscience.iop.org/article/10.1088/1741-2552/aae5d8
-    """
     
     if dropoutType == 'SpatialDropout2D':
         dropoutType = SpatialDropout2D
@@ -191,29 +131,6 @@ def EEGNet_SSVEP(nb_classes = 12, Chans = 8, Samples = 256,
 
 def EEGNet_old(nb_classes, Chans = 64, Samples = 128, regRate = 0.0001,
            dropoutRate = 0.25, kernels = [(2, 32), (8, 4)], strides = (2, 4)):
-    """ Keras Implementation of EEGNet_v1 (https://arxiv.org/abs/1611.08024v2)
-    This model is the original EEGNet model proposed on arxiv
-            https://arxiv.org/abs/1611.08024v2
-    
-    with a few modifications: we use striding instead of max-pooling as this 
-    helped slightly in classification performance while also providing a 
-    computational speed-up. 
-    
-    Note that we no longer recommend the use of this architecture, as the new
-    version of EEGNet performs much better overall and has nicer properties.
-    
-    Inputs:
-        
-        nb_classes     : total number of final categories
-        Chans, Samples : number of EEG channels and samples, respectively
-        regRate        : regularization rate for L1 and L2 regularizations
-        dropoutRate    : dropout fraction
-        kernels        : the 2nd and 3rd layer kernel dimensions (default is 
-                         the [2, 32] x [8, 4] configuration)
-        strides        : the stride size (note that this replaces the max-pool
-                         used in the original paper)
-    
-    """
 
     # start the model
     input_main   = Input((1, Chans, Samples))
@@ -251,28 +168,6 @@ def EEGNet_old(nb_classes, Chans = 64, Samples = 128, regRate = 0.0001,
 
 def DeepConvNet(nb_classes, Chans = 64, Samples = 256,
                 dropoutRate = 0.5, cpu=False):
-    """ Keras implementation of the Deep Convolutional Network as described in
-    Schirrmeister et. al. (2017), Human Brain Mapping.
-    
-    This implementation assumes the input is a 2-second EEG signal sampled at 
-    128Hz, as opposed to signals sampled at 250Hz as described in the original
-    paper. We also perform temporal convolutions of length (1, 5) as opposed
-    to (1, 10) due to this sampling rate difference. 
-    
-    Note that we use the max_norm constraint on all convolutional layers, as 
-    well as the classification layer. We also change the defaults for the
-    BatchNormalization layer. We used this based on a personal communication 
-    with the original authors.
-    
-                      ours        original paper
-    pool_size        1, 2        1, 3
-    strides          1, 2        1, 3
-    conv filters     1, 5        1, 10
-    
-    Note that this implementation has not been verified by the original 
-    authors. 
-    
-    """
 
     if cpu:
         input_shape = (Samples, Chans, 1)
@@ -338,29 +233,6 @@ def log(x):
 
 
 def ShallowConvNet(nb_classes, Chans = 64, Samples = 128, dropoutRate = 0.5, cpu = False):
-    """ Keras implementation of the Shallow Convolutional Network as described
-    in Schirrmeister et. al. (2017), Human Brain Mapping.
-    
-    Assumes the input is a 2-second EEG signal sampled at 128Hz. Note that in 
-    the original paper, they do temporal convolutions of length 25 for EEG
-    data sampled at 250Hz. We instead use length 13 since the sampling rate is 
-    roughly half of the 250Hz which the paper used. The pool_size and stride
-    in later layers is also approximately half of what is used in the paper.
-    
-    Note that we use the max_norm constraint on all convolutional layers, as 
-    well as the classification layer. We also change the defaults for the
-    BatchNormalization layer. We used this based on a personal communication 
-    with the original authors.
-    
-                     ours        original paper
-    pool_size        1, 35       1, 75
-    strides          1, 7        1, 15
-    conv filters     1, 13       1, 25    
-    
-    Note that this implementation has not been verified by the original 
-    authors. We do note that this implementation reproduces the results in the
-    original paper with minor deviations. 
-    """
 
     if cpu:
         input_shape = (Samples, Chans, 1)
