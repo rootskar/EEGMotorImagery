@@ -41,10 +41,6 @@ training_trials = subj_for_training * trials_per_subject
 X_train = X[:training_trials]
 y_train = y[:training_trials]
 
-from sklearn.model_selection import train_test_split
-
-X_train, _, y_train, _ = train_test_split(X_train, y_train, test_size=0.00001, random_state=42)
-
 X_tl = []
 y_tl = []
 start_idx = training_trials
