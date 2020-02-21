@@ -27,12 +27,12 @@ trials_per_subject = 3 * 15 * 8
 subj_for_training = 100 # The number of subjects that should be used for pre-training the model for TL
 subj_for_transfer_learning = 3 # The number of subject that should be used for individual evaluation of the TL model
 
-#X, y = load_data(nr_of_subj=nr_of_subj, trial_type=trial_type, chunk_data=True, chunks=8, 
-                 #preprocessing=True, hp_freq=0.5, bp_low=2, bp_high=60, notch=True, 
-                 #hp_filter=True, bp_filter=True, artifact_removal=True, normalize=False)
-data = np.load('filt-clean-win-exec-80-103.npz', allow_pickle=True)
-X = data['data']
-y = data['labels']
+X, y = load_data(nr_of_subj=nr_of_subj, trial_type=trial_type, chunk_data=True, chunks=8, 
+                 preprocessing=True, hp_freq=0.5, bp_low=2, bp_high=60, notch=True, 
+                 hp_filter=True, bp_filter=True, artifact_removal=True, normalize=False)
+#data = np.load('filt-clean-win-exec-80-103.npz', allow_pickle=True)
+#X = data['data']
+#y = data['labels']
 
 # %%
 # Data Splitting for Transfer Learning
