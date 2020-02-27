@@ -69,103 +69,6 @@ def EEGNet(nb_classes, Chans = 64, Samples = 128,
     return Model(inputs=input1, outputs=softmax)
 
 
-
-
-def EEGNet_SSVEP(nb_classes = 12, Chans = 8, Samples = 256, 
-             dropoutRate = 0.5, kernLength = 256, F1 = 96, 
-             D = 1, F2 = 96, dropoutType = 'Dropout', cpu = False):
-    
-    if dropoutType == 'SpatialDropout2D':
-        dropoutType = SpatialDropout2D
-    elif dropoutType == 'Dropout':
-        dropoutType = Dropout
-    else:
-        raise ValueError('dropoutType must be one of SpatialDropout2D '
-                         'or Dropout, passed as a string.')
-
-    if cpu:
-        input_shape = (Samples, Chans, 1)
-        input1   = Input(shape = input_shape)
-        conv_filters = (kernLength, 1)
-        depth_filters = (1, Chans)
-        pool_size = (4, 1)
-        pool_size2 = (8, 1)
-        separable_filters = (16, 1)
-    else:
-        input_shape = (1, Chans, Samples)
-        input1   = Input(shape = input_shape)
-        conv_filters = (1, kernLength)
-        depth_filters = (Chans, 1)
-        pool_size = (1, 4)
-        pool_size2 = (1, 8)
-        separable_filters = (1, 16)
-
-    ##################################################################
-    block1       = Conv2D(F1, conv_filters, padding = 'same',
-                                   input_shape = input_shape,
-                                   use_bias = False)(input1)
-    block1       = BatchNormalization(axis = 1)(block1)
-    block1       = DepthwiseConv2D(depth_filters, use_bias = False, 
-                                   depth_multiplier = D,
-                                   depthwise_constraint = max_norm(1.))(block1)
-    block1       = BatchNormalization(axis = 1)(block1)
-    block1       = Activation('elu')(block1)
-    block1       = AveragePooling2D(pool_size)(block1)
-    block1       = dropoutType(dropoutRate)(block1)
-    
-    block2       = SeparableConv2D(F2, separable_filters,
-                                   use_bias = False, padding = 'same')(block1)
-    block2       = BatchNormalization(axis = 1)(block2)
-    block2       = Activation('elu')(block2)
-    block2       = AveragePooling2D(pool_size2)(block2)
-    block2       = dropoutType(dropoutRate)(block2)
-        
-    flatten      = Flatten(name = 'flatten')(block2)
-    
-    dense        = Dense(nb_classes, name = 'dense')(flatten)
-    softmax      = Activation('softmax', name = 'softmax')(dense)
-    
-    return Model(inputs=input1, outputs=softmax)
-
-
-
-def EEGNet_old(nb_classes, Chans = 64, Samples = 128, regRate = 0.0001,
-           dropoutRate = 0.25, kernels = [(2, 32), (8, 4)], strides = (2, 4)):
-
-    # start the model
-    input_main   = Input((1, Chans, Samples))
-    layer1       = Conv2D(16, (Chans, 1), input_shape=(1, Chans, Samples),
-                                 kernel_regularizer = l1_l2(l1=regRate, l2=regRate))(input_main)
-    layer1       = BatchNormalization(axis=1)(layer1)
-    layer1       = Activation('elu')(layer1)
-    layer1       = Dropout(dropoutRate)(layer1)
-    
-    permute_dims = 2, 1, 3
-    permute1     = Permute(permute_dims)(layer1)
-    
-    layer2       = Conv2D(4, kernels[0], padding = 'same', 
-                            kernel_regularizer=l1_l2(l1=0.0, l2=regRate),
-                            strides = strides)(permute1)
-    layer2       = BatchNormalization(axis=1)(layer2)
-    layer2       = Activation('elu')(layer2)
-    layer2       = Dropout(dropoutRate)(layer2)
-    
-    layer3       = Conv2D(4, kernels[1], padding = 'same',
-                            kernel_regularizer=l1_l2(l1=0.0, l2=regRate),
-                            strides = strides)(layer2)
-    layer3       = BatchNormalization(axis=1)(layer3)
-    layer3       = Activation('elu')(layer3)
-    layer3       = Dropout(dropoutRate)(layer3)
-    
-    flatten      = Flatten(name = 'flatten')(layer3)
-    
-    dense        = Dense(nb_classes, name = 'dense')(flatten)
-    softmax      = Activation('softmax', name = 'softmax')(dense)
-    
-    return Model(inputs=input_main, outputs=softmax)
-
-
-
 def DeepConvNet(nb_classes, Chans = 64, Samples = 256,
                 dropoutRate = 0.5, cpu=False):
 
@@ -486,11 +389,9 @@ def EEGNet_fusion(nb_classes, Chans = 64, Samples = 128,
     F1 = 8
     F1_2 = 16
     F1_3 = 32
-    F1_3 = 64
     F2 = 16
     F2_2 = 32
     F2_3 = 64
-    F2_3 = 128
     D = 2
     D2 = 2
     D3 = 2
