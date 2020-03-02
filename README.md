@@ -13,6 +13,4 @@ The program can be run from the CLI with the following required arguments:
 
 3.) What type of trials should be extracted from the data; 1 => executed trials only; 2 => imagined trials only; 3 => both trials
 
-4.) If CPU-only mode should be used (True / False)
-
-Example: python train_test_tl.py 109 100 1 False
+Example: python train_test_tl.py 109 100 1
