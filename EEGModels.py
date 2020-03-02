@@ -145,10 +145,10 @@ def ShallowConvNet(nb_classes, Chans = 64, Samples = 128, dropoutRate = 0.5, cpu
         strides = (7, 1)
     else:
         input_shape = (1, Chans, Samples)
-        conv_filters = (1, 13)
+        conv_filters = (1, 25)
         conv_filters2 = (Chans, 1)
-        pool_size = (1, 35)
-        strides = (1, 7)
+        pool_size = (1, 45)
+        strides = (1, 15)
 
     # start the model
     input_main   = Input(input_shape)

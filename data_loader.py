@@ -21,7 +21,6 @@ The data is also preprocessed using if the preprocessing argument is True.
 """
 def load_data(nr_of_subj=109, trial_type=1, chunk_data=True, chunks=4, base_folder='files/', sample_rate=160, samples=640, 
               preprocessing=False, hp_freq=0.5, bp_low=2, bp_high=60, notch=False, hp_filter=False, bp_filter=False, artifact_removal=False, normalize=False):
-    # %%
     # Get file paths
     PATH = base_folder
     SUBS = glob(PATH + 'S[0-9]*')

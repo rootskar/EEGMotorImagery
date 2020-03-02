@@ -10,12 +10,11 @@ from tensorflow.keras import callbacks
 from sklearn.model_selection import KFold, train_test_split
 from statistics import mean
 from glob import glob
-
 from predict import predict_accuracy
+
 
 # Set the data format
 K.set_image_data_format('channels_first')
-
 
 """
 @input - model (Object); training data (List); training labels (List); testing data (List); testing labels (List);
@@ -39,17 +38,16 @@ def train_test_model(model, X_train, y_train, X_val, y_val, X_test, y_test, mode
             callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=5)]
 
     model.compile(loss=binary_crossentropy, optimizer=Adam(lr=0.001), metrics=['accuracy'])
-    print(y_train.shape, y_test.shape, y_val.shape)
+
     if multi_branch:
         history = model.fit([X_train, X_train, X_train], y_train, batch_size=64, shuffle=True, epochs=nr_of_epochs, validation_data=([X_val, X_val, X_val], y_val), verbose=False, callbacks=callbacks_list)
     else:
         history = model.fit(X_train, y_train, batch_size=64, shuffle=True, epochs=nr_of_epochs, validation_data=(X_val, y_val), verbose=False, callbacks=callbacks_list)
 
-    # %%
     # test model predictions
 
     model.load_weights(new_model_name)
-    return predict_accuracy(model, X_test, y_test, new_model_name, multi_branch=multi_branch)
+    return model, predict_accuracy(model, X_test, y_test, new_model_name, multi_branch=multi_branch)
 
 
 """
@@ -61,8 +59,6 @@ If the use_kfold argument is True, the model is kfold cross-validated and the av
 @output - Model object
 """
 def run_model(X, y, model, model_name='Noname', classes=2, samples=640, test_split_size=0.2, use_kfold=False, kfold_n=2, val_split=0.04, multi_branch=False):
-    #model.save('./model/' + str(model_name) + '_full.h5')
-    #model = determine_model(model_name, classes, samples)
     X_train_val, X_test, y_train_val, y_test = train_test_split(X, y, test_size=test_split_size, random_state=42)
 
     if use_kfold:
@@ -74,7 +70,7 @@ def run_model(X, y, model, model_name='Noname', classes=2, samples=640, test_spl
             X_val, y_val = X_train_val[val_idx], y_train_val[val_idx]
             X_train, y_train = X_train_val[train_idx], y_train_val[train_idx]
             
-            result = train_test_model(model, X_train, y_train, X_val, y_val, X_test, y_test, model_name, multi_branch=multi_branch)
+            model, result = train_test_model(model, X_train, y_train, X_val, y_val, X_test, y_test, model_name, multi_branch=multi_branch)
 
             if result > best_acc:
                 best_acc = result
@@ -83,12 +79,11 @@ def run_model(X, y, model, model_name='Noname', classes=2, samples=640, test_spl
             accs.append(result)
 
             # reset weights for next iteration
-            #K.get_session().close()
-            #K.set_session(Session())
             K.get_session().run(global_variables_initializer())
         
         print("Average classification accuracy for %s : %f " % (model_name, mean(accs)))
 
     else:
-        X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=val_split, random_state=42)
-        train_test_model(model, X_train, y_train, X_val, y_val, X_test, y_test, model_name, multi_branch=multi_branch)
+        X_train, X_val, y_train, y_val = train_test_split(X_train_val, y_train_val, test_size=val_split, random_state=42)
+        model, _ = train_test_model(model, X_train, y_train, X_val, y_val, X_test, y_test, model_name, multi_branch=multi_branch)
+        model.save('./model/' + str(model_name) + '_best.h5')
