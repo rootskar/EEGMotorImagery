@@ -17,5 +17,6 @@ The program can be run from the CLI with the following required arguments:
 Example: python train_test_tl.py 109 100 1 False
 
 ## License
+Copyright Karel Roots 2020
 
 This work is licensed under the Apache License, Version 2.0. See [LICENSE](https://github.com/rootskar/EEGMotorImagery/edit/master/LICENSE) for the full license text.
