@@ -1,4 +1,4 @@
-# Implementation code for the paper "Fusion Convolutional Neural Network with Transfer Learning for Cross-Subject EEG Motor Imagery Classification"
+# Implementation code for the paper "Fusion Convolutional Neural Network for Cross-Subject EEG Motor Imagery Classification"
 
 ## Dependencies
 Python >= 3.3, Tensorflow >= 1.4, Numpy >= 1.18.1, scikit-learn >= 0.22, pyEDFlib >= 0.1.15, Gumpy (https://github.com/gumpy-bci/gumpy) and it's dependencies mlxtend >= 0.17, pywavelets >= 1.1.1
