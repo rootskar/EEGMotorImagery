@@ -1,16 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import numpy as np
+
+__author__ = "Karel Roots"
+
 import os
-import sys
-import traceback
 from glob import glob
+
+import numpy as np
 import pyedflib
 from preprocess import preprocess_data
-
+from run_type import RunType
 
 """
-@input - Optional args - the number of subjects to use from the dataset (int); the trial type (int 1, 2 or 3);
+@input - Optional args - the number of subjects to use from the dataset (int); the trial type (Executed, Imagined or Combined movements);
          the number of chunks the samples should be divided into (int); the relative path to data files location (String)
          
 Method that loads the EEG Motor Imagery data from the input folder with given number of subjects, 
@@ -19,8 +21,11 @@ The data is also preprocessed using if the preprocessing argument is True.
 
 @output - data (Numpy array); target labels (Numpy array)
 """
-def load_data(nr_of_subj=109, trial_type=1, chunk_data=True, chunks=4, base_folder='files/', sample_rate=160, samples=640, 
-              preprocessing=False, hp_freq=0.5, bp_low=2, bp_high=60, notch=False, hp_filter=False, bp_filter=False, artifact_removal=False, normalize=False):
+
+
+def load_data(nr_of_subj=109, trial_type=1, chunk_data=True, chunks=4, base_folder='data/', sample_rate=160,
+              samples=640, cpu_format=False, preprocessing=False, hp_freq=0.5, bp_low=2, bp_high=60, notch=False,
+              hp_filter=False, bp_filter=False, artifact_removal=False):
     # Get file paths
     PATH = base_folder
     SUBS = glob(PATH + 'S[0-9]*')
@@ -35,9 +40,9 @@ def load_data(nr_of_subj=109, trial_type=1, chunk_data=True, chunks=4, base_fold
     except:
         pass
 
-    #print("Using files:")
-    #print(FNAMES)
-    
+    # print("Using files:")
+    # print(FNAMES)
+
     """
     @input - label (String)
             
@@ -45,13 +50,13 @@ def load_data(nr_of_subj=109, trial_type=1, chunk_data=True, chunks=4, base_fold
 
     @output - data (Numpy array); target labels (Numpy array)
     """
-    def convertLabelToInt(str):
+
+    def convert_label_to_int(str):
         if str == 'T1':
             return 0
         if str == 'T2':
             return 1
-        raise Exception ("Invalid label %s" % str)
-
+        raise Exception("Invalid label %s" % str)
 
     """
     @input - data (array); number of chunks to divide the list into (int)
@@ -60,22 +65,22 @@ def load_data(nr_of_subj=109, trial_type=1, chunk_data=True, chunks=4, base_fold
 
     @output - 2D array of divided input data
     """
+
     def divide_chunks(data, chunks):
         for i in range(0, len(data), chunks):
             yield data[i:i + chunks]
 
-
     executed_trials = '03,07,11'.split(',')
     imagined_trials = '04,08,12'.split(',')
     both_trials = executed_trials + imagined_trials
-    samples_per_chunk = int(samples/chunks)
+    samples_per_chunk = int(samples / chunks)
 
     # Determine the type of trials to be used
-    if trial_type == 1:
+    if trial_type == RunType.Executed:
         file_numbers = executed_trials
-    elif trial_type == 2:
+    elif trial_type == RunType.Imagined:
         file_numbers = imagined_trials
-    elif trial_type == 3:
+    elif trial_type == RunType.Combined:
         file_numbers = both_trials
     else:
         raise Exception("Invalid trial type value %d" % trial_type)
@@ -85,16 +90,16 @@ def load_data(nr_of_subj=109, trial_type=1, chunk_data=True, chunks=4, base_fold
 
     # Iterate over different subjects
     for subj in FNAMES:
-        
+
         # Load the file names for given subject
-        fnames = glob(os.path.join(PATH, subj, subj+'R*.edf'))
+        fnames = glob(os.path.join(PATH, subj, subj + 'R*.edf'))
         fnames = [name for name in fnames if name[-6:-4] in file_numbers]
 
         # Iterate over the trials for each subject
         for file_name in fnames:
 
             # Load the file
-            #print("File name " + file_name)
+            # print("File name " + file_name)
             loaded_file = pyedflib.EdfReader(file_name)
             annotations = loaded_file.readAnnotations()
             times = annotations[0]
@@ -103,7 +108,7 @@ def load_data(nr_of_subj=109, trial_type=1, chunk_data=True, chunks=4, base_fold
 
             # Load the data signals into a buffer
             signals = loaded_file.signals_in_file
-            #signal_labels = loaded_file.getSignalLabels()
+            # signal_labels = loaded_file.getSignalLabels()
             sigbufs = np.zeros((signals, loaded_file.getNSamples()[0]))
             for i in np.arange(signals):
                 sigbufs[i, :] = loaded_file.readSignal(i)
@@ -128,41 +133,54 @@ def load_data(nr_of_subj=109, trial_type=1, chunk_data=True, chunks=4, base_fold
                 signal_end = signal_start + samples
 
                 # Skipping tasks where the user was resting
-                if tasks[i] == 'T0': 
-                    signal_start += int(sample_rate*current_duration)
+                if tasks[i] == 'T0':
+                    signal_start += int(sample_rate * current_duration)
                     continue
 
                 # Iterate over each channel
                 for j in range(len(sigbufs)):
                     channel_data = sigbufs[j][signal_start:signal_end]
                     if preprocessing:
-                        channel_data = preprocess_data(channel_data, sample_rate=sample_rate, ac_freq=60, 
-                                                       hp_freq=hp_freq, bp_low=bp_low, bp_high=bp_high, notch=notch, 
-                                                       hp_filter=hp_filter, bp_filter=bp_filter, artifact_removal=artifact_removal)
+                        channel_data = preprocess_data(channel_data, sample_rate=sample_rate, ac_freq=60,
+                                                       hp_freq=hp_freq, bp_low=bp_low, bp_high=bp_high, notch=notch,
+                                                       hp_filter=hp_filter, bp_filter=bp_filter,
+                                                       artifact_removal=artifact_removal)
                     if chunk_data:
                         channel_data = list(divide_chunks(channel_data, samples_per_chunk))
 
                     # Add data for the current channel and task to the result
                     trial_data[k][j] = channel_data
-                
-            
+
                 # add label(s) for the current task to the result
                 if chunk_data:
                     # multiply the labels by the chunk size for chunked mode
-                    labels.extend([convertLabelToInt(tasks[i])]*chunks)
+                    labels.extend([convert_label_to_int(tasks[i])] * chunks)
                 else:
-                    labels.append(convertLabelToInt(tasks[i]))
+                    labels.append(convert_label_to_int(tasks[i]))
 
-                signal_start += int(sample_rate*current_duration)
+                signal_start += int(sample_rate * current_duration)
                 k += 1
 
             # Add labels and data for the current run into the final output numpy arrays
             y.extend(labels)
-            X.extend(trial_data.swapaxes(1, 2).reshape((-1, 64, samples_per_chunk)))
-    
+            if cpu_format:
+                if chunk_data:
+                    # (15, 64, 8, 80) => (15, 64, 80, 8) => (15, 8, 80, 64) => (120, 80, 64)
+                    X.extend(trial_data.swapaxes(2, 3).swapaxes(1, 3).reshape((-1, samples_per_chunk, 64)))
+                else:
+                    # (15, 64, 640) => (15, 640, 64)
+                    X.extend(trial_data.swapaxes(1, 2))
+            else:
+                if chunk_data:
+                    # (15, 64, 8, 80) => (15, 8, 64, 80) => (120, 64, 80)
+                    X.extend(trial_data.swapaxes(1, 2).reshape((-1, 64, samples_per_chunk)))
+                else:
+                    # (15, 64, 640)
+                    X.extend(trial_data)
+
     # Shape the final output arrays to the correct format
     X = np.stack(X)
-    y = np.array(y).reshape((-1,1))
+    y = np.array(y).reshape((-1, 1))
 
     print("Loaded data shapes:")
     print(X.shape, y.shape)
