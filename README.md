@@ -1,20 +1,30 @@
 # Implementation code for the paper "Fusion Convolutional Neural Network for Cross-Subject EEG Motor Imagery Classification"
 
 ## Dependencies
-Python >= 3.3, Tensorflow >= 1.4, Numpy >= 1.18.1, scikit-learn >= 0.22, pyEDFlib >= 0.1.15, Gumpy (https://github.com/gumpy-bci/gumpy) and it's dependencies mlxtend >= 0.17, pywavelets >= 1.1.1
+* Tensorflow 2.1.0
+* PyQT5 5.9.2
+* SciKit-learn 0.22.1
+* Gumpy (https://github.com/gumpy-bci/gumpy)
+* SciPy 1.4.1
+* Numpy 1.18.1
+* mlxtend 0.17.2
+* statsmodels 0.11.1
+* pyEDFlib 0.1.17
 
 ## Running
 The program can be run from the CLI with the following required arguments:
 
-1.) The number of subjects to be used from the dataset
+1.) The number of subjects to be used from the dataset (integer)
 
-2.) The number of epochs the training of models should be done
+2.) The number of epochs the training of models should be done (integer)
 
-3.) What type of trials should be extracted from the data; 1 => executed trials only; 2 => imagined trials only; 3 => both trials
+3.) The number of target classes in the classification (integer)
 
-4.) If the training/testing is done using CPU mode (True/False). If this is False, the machine should be able to use tensorflow with GPU
+4.) What type of trials should be extracted from the data (1 or 2, where 1 => executed trials only and 2 => imagined trials only)
 
-Example: python train_test_tl.py 109 100 1 False
+5.) If CPU-only mode should be used (True / False). Note that for GPU mode you will need to have CUDA installed.
+
+Example: python run_experiments.py 109 100 2 1 True
 
 ## License
 Copyright Karel Roots 2020
