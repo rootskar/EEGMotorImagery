@@ -6,7 +6,7 @@ __author__ = "Karel Roots"
 import sys
 
 # Add gumpy path
-sys.path.append('../shared')
+sys.path.append('gumpy')
 from gumpy import signal
 import numpy as np
 
