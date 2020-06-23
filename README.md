@@ -1,8 +1,7 @@
 # Implementation code for the paper "Fusion Convolutional Neural Network for Cross-Subject EEG Motor Imagery Classification"
 
-## Dependencies
+## Dependencies Required
 * Tensorflow 2.1.0
-* PyQT5 5.9.2
 * SciKit-learn 0.22.1
 * Gumpy (https://github.com/gumpy-bci/gumpy)
 * SciPy 1.4.1
