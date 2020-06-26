@@ -29,6 +29,8 @@ The program can be run from the CLI with the following required arguments:
 
 Example: python run_experiments.py 109 100 2 1 True
 
+NB! The EEG data has to be unpacked into the working directory "data" folder.
+
 ## License
 Copyright Karel Roots 2020
 
