@@ -3,6 +3,7 @@
 ## Dependencies Required
 * Python 3.7
 * Tensorflow 2.1.0
+* Pywavelets 1.1.1
 * SciKit-learn 0.22.1
 * Gumpy (https://github.com/gumpy-bci/gumpy)
 * SciPy 1.4.1
