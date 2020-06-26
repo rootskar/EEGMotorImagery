@@ -10,6 +10,8 @@
 * statsmodels 0.11.1
 * pyEDFlib 0.1.17
 
+If you have python, virtualenv and pip installed, you can use the "install.bat" script in Windows or "install.sh" script in Linux to create a virtual environment in the running folder with all the dependencies installed.
+
 ## Running
 The program can be run from the CLI with the following required arguments:
 
