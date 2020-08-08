@@ -3,7 +3,9 @@
 
 __author__ = "Karel Roots"
 
+import time
 from glob import glob
+import numpy as np
 
 from predict import predict_accuracy
 from sklearn.model_selection import train_test_split
@@ -11,6 +13,8 @@ from tensorflow.keras import backend as K
 from tensorflow.keras import callbacks
 from tensorflow.keras.losses import binary_crossentropy
 from tensorflow.keras.optimizers import Adam
+from sklearn.metrics import precision_score, recall_score
+
 
 """
 @input - model (Object); model name (String), training data (List); training labels (List); validation data (List); 
@@ -44,17 +48,34 @@ def train_test_model(model, model_name, X_train, y_train, X_val, y_val, X_test, 
 
     model.compile(loss=binary_crossentropy, optimizer=Adam(lr=0.001), metrics=['accuracy'])
 
+    training_start = time.time()
     if multi_branch:
         history = model.fit([X_train, X_train, X_train], y_train, batch_size=64, shuffle=True, epochs=nr_of_epochs,
                             validation_data=([X_val, X_val, X_val], y_val), verbose=False, callbacks=callbacks_list)
     else:
         history = model.fit(X_train, y_train, batch_size=64, shuffle=True, epochs=nr_of_epochs,
                             validation_data=(X_val, y_val), verbose=False, callbacks=callbacks_list)
+    
+    training_total_time = time.time() - training_start
+    print("Model {} total training time was {} seconds".format(model_name, training_total_time))
+    print("That is {} seconds per sample".format(training_total_time/X_train.shape[0]))
+    print("Train shape: {}. Test shape: {}".format(X_train.shape, X_test.shape))
 
     # test model predictions
     if test_model:
         model.load_weights(new_model_name)
-        acc, equals = predict_accuracy(model, X_test, y_test, new_model_name, multi_branch=multi_branch)
+        testing_start = time.time()
+        acc, equals, preds = predict_accuracy(model, X_test, y_test, new_model_name, multi_branch=multi_branch)
+        testing_total_time = time.time() - training_start
+        print("Model {} total testing time was {} seconds".format(model_name, testing_total_time))
+        print("That is {} seconds per sample".format(testing_total_time/X_test.shape[0]))
+        rounded_labels = np.argmax(y_test, axis=1)
+        #precision = precision_score(rounded_labels, preds, labels=[1,2], average='micro')
+        precision = precision_score(rounded_labels, preds, average='binary')
+        print('Precision: %.3f' % precision)
+        #recall = recall_score(rounded_labels, preds, labels=[1,2], average='micro')
+        recall = recall_score(rounded_labels, preds, average='binary')
+        print('Recall: %.3f' % recall)
 
     return model, acc, equals
 
