@@ -71,16 +71,22 @@ def train_test_model(model, model_name, X_train, y_train, X_val, y_val, X_test, 
         print("That is {} seconds per sample".format(testing_total_time/X_test.shape[0]))
         
         rounded_labels = np.argmax(y_test, axis=1)
+
         precision_left = precision_score(rounded_labels, preds, average='binary', pos_label=0)
         print('Precision for left hand: %.3f' % precision_left)
+
         recall_left = recall_score(rounded_labels, preds, average='binary', pos_label=0)
         print('Recall for left hand: %.3f' % recall_left)
+
         f1_left = f1_score(rounded_labels, preds, pos_label=0, average='binary')
         print('F1-Score for right hand: %.3f' % f1_left)
+
         precision_right = precision_score(rounded_labels, preds, average='binary', pos_label=1)
         print('Precision for right hand: %.3f' % precision_right)
+
         recall_right = recall_score(rounded_labels, preds, average='binary', pos_label=1)
         print('Recall for right hand: %.3f' % recall_right)
+        
         f1_right = f1_score(rounded_labels, preds, pos_label=1, average='binary')
         print('F1-Score for right hand: %.3f' % f1_right)
 
