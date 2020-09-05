@@ -1,5 +1,12 @@
 # Implementation code for the paper "Fusion Convolutional Neural Network for Cross-Subject EEG Motor Imagery Classification"
 
+Article published in open access journal MDPI Computers Special Issue Machine Learning for EEG Signal Processing
+
+https://www.mdpi.com/2073-431X/9/3/72/htm
+
+## Abstract
+Brain–computer interfaces (BCIs) can help people with limited motor abilities to interact with their environment without external assistance. A major challenge in electroencephalogram (EEG)-based BCI development and research is the cross-subject classification of motor imagery data. Due to the highly individualized nature of EEG signals, it has been difficult to develop a cross-subject classification method that achieves sufficiently high accuracy when predicting the subject’s intention. In this study, we propose a multi-branch 2D convolutional neural network (CNN) that utilizes different hyperparameter values for each branch and is more flexible to data from different subjects. Our model, EEGNet Fusion, achieves 84.1% and 83.8% accuracy when tested on the 103-subject eegmmidb dataset for executed and imagined motor actions, respectively. The model achieved statistically significantly higher results compared with three state-of-the-art CNN classifiers: EEGNet, ShallowConvNet, and DeepConvNet. However, the computational cost of the proposed model is up to four times higher than the model with the lowest computational cost used for comparison.
+
 ## Dependencies Required
 * Python 3.7
 * Tensorflow 2.1.0
